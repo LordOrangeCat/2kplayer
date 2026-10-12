@@ -10,8 +10,8 @@ export interface Track {
   file?: File;
   handle?: any; // FileSystemFileHandle
   dir?: any; // FileSystemDirectoryHandle
-  siblings?: File[]; // fallback mode: files in same folder (for covers)
-  meta?: TrackMeta;
+  siblings?: File[] | undefined; // fallback mode: files in same folder (for covers)
+  meta?: TrackMeta | undefined;
 }
 
 export type Source = { kind: "dir" | "file"; handle: any };
@@ -101,7 +101,7 @@ export async function getFile(t: Track): Promise<File> {
 
 export async function findFolderCover(t: Track): Promise<Blob | null> {
   const ok = (n: string) => {
-    const [b, e] = n.toLowerCase().split(/\.(?=[^.]+$)/);
+    const [b = "", e = ""] = n.toLowerCase().split(/\.(?=[^.]+$)/);
     return COVER_NAMES.includes(b) && ["jpg", "jpeg", "png"].includes(e);
   };
   if (t.dir) {

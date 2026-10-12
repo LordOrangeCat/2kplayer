@@ -261,7 +261,7 @@ export function usePlayer() {
         }
         if (idx < 0) idx = queue.length - 1;
       }
-      playTrack(queue[idx]);
+      playTrack(queue[idx]!);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [queue, current, shuffle, repeat, playTrack],
