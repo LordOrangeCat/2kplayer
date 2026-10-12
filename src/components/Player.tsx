@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { MacWindow } from "./MacWindow";
 import { OptionsDialog } from "./OptionsDialog";
 import { YouTubeSearch } from "./YouTubeSearch";
@@ -26,6 +27,60 @@ const fmt = (s: number) => {
   const m = Math.floor(s / 60);
   return `${m}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 };
+
+/** DJ-style jog wheel: drag in a circle to scrub the track. */
+function JogWheel({ playing, time, duration, onScrub }: {
+  playing: boolean;
+  time: number;
+  duration: number;
+  onScrub: (t: number) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ angle: number; t: number } | null>(null);
+
+  const angleOf = (e: ReactPointerEvent) => {
+    const r = ref.current!.getBoundingClientRect();
+    return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2));
+  };
+
+  const onDown = (e: ReactPointerEvent) => {
+    if (!duration) return;
+    ref.current!.setPointerCapture(e.pointerId);
+    drag.current = { angle: angleOf(e), t: time };
+  };
+  const onMove = (e: ReactPointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const a = angleOf(e);
+    let delta = a - d.angle;
+    if (delta > Math.PI) delta -= 2 * Math.PI;
+    if (delta < -Math.PI) delta += 2 * Math.PI;
+    d.angle = a;
+    // one full turn = 30 seconds of scrubbing
+    d.t = Math.min(duration, Math.max(0, d.t + (delta / (2 * Math.PI)) * 30));
+    onScrub(d.t);
+  };
+  const onUp = () => { drag.current = null; };
+
+  return (
+    <div
+      ref={ref}
+      className="jog-wheel"
+      role="slider"
+      aria-label="Jog wheel — drag to scrub"
+      aria-valuemin={0}
+      aria-valuemax={Math.round(duration)}
+      aria-valuenow={Math.round(time)}
+      title="Drag in a circle to scrub (DJ jog wheel)"
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={onUp}
+    >
+      <I.CdIcon spinning={playing && !drag.current} />
+    </div>
+  );
+}
 
 export function Player() {
   const p = usePlayer();
