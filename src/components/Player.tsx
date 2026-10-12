@@ -3,7 +3,21 @@ import { MacWindow } from "./MacWindow";
 import { OptionsDialog } from "./OptionsDialog";
 import * as I from "./icons";
 import { ALL, FAVS, UNKNOWN, usePlayer } from "@/hooks/usePlayer";
-import { formatLabel } from "@/lib/meta";
+import type { TrackMeta } from "@/lib/meta";
+
+function formatLabel(m: TrackMeta | undefined, outRate?: number): string {
+  if (!m) return "";
+  const parts: string[] = [];
+  if (m.codec) parts.push(m.codec);
+  if (m.bits) parts.push(`${m.bits}-bit`);
+  if (m.sampleRate) parts.push(`${+(m.sampleRate / 1000).toFixed(1)} kHz`);
+  let s = parts.join(" ");
+  if (outRate) {
+    s += ` → out ${+(outRate / 1000).toFixed(1)} kHz`;
+    if (m.sampleRate && m.sampleRate !== outRate) s += " (resampled)";
+  }
+  return s;
+}
 
 const fmt = (s: number) => {
   if (!isFinite(s) || s < 0) s = 0;
@@ -21,7 +35,7 @@ export function Player() {
   const addFiles = () => (p.fsa ? p.addSource("file") : fileInput.current?.click());
 
   const m = p.currentTrack?.meta;
-  const hiRes = !!m && ((m.sampleRate ?? 0) > 48000 || (m.bitDepth ?? 0) > 16);
+  const hiRes = !!m && (m.sampleRate > 48000 || m.bits > 16);
   const isFav = !!p.currentTrack && p.favs.has(p.currentTrack.path);
   const pct = p.duration ? (p.time / p.duration) * 100 : 0;
 
