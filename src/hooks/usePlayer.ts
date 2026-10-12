@@ -430,7 +430,7 @@ export function usePlayer() {
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "SELECT" || tag === "INPUT") return;
+      if (tag === "SELECT" || tag === "INPUT" || tag === "BUTTON" || tag === "TEXTAREA") return;
       if (e.code === "Space") {
         e.preventDefault();
         togglePlay();
