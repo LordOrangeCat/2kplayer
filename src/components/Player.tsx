@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { MacWindow } from "./MacWindow";
 import { OptionsDialog } from "./OptionsDialog";
+import { YouTubeSearch } from "./YouTubeSearch";
+import { EnhancerPanel } from "./EnhancerPanel";
 import * as I from "./icons";
 import { ALL, FAVS, UNKNOWN, usePlayer } from "@/hooks/usePlayer";
 import type { TrackMeta } from "@/lib/meta";
@@ -28,6 +30,8 @@ const fmt = (s: number) => {
 export function Player() {
   const p = usePlayer();
   const [opts, setOpts] = useState(false);
+  const [yt, setYt] = useState(false);
+  const [enhOpen, setEnhOpen] = useState(false);
   const dirInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -42,7 +46,11 @@ export function Player() {
   const status = !p.tracks.length
     ? "Click the CD to add a folder"
     : p.currentTrack
-      ? formatLabel(m, p.outRate) || p.currentTrack.name
+      ? p.currentTrack.remote
+        ? p.engine === "loading" ? "Loading from YouTube…"
+          : p.engine === "embed" ? "YouTube (embedded player)"
+          : `YouTube stream${p.enh.on ? " · enhanced" : ""}`
+        : formatLabel(m, p.outRate) || p.currentTrack.name
       : `${p.tracks.length} tracks`;
 
   return (
@@ -155,6 +163,10 @@ export function Player() {
           </div>
 
           <p className="text-center text-sm">{status}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button className="bevel h-9 text-lg" onClick={() => setYt(true)}>YouTube…</button>
+            <button className="bevel h-9 text-lg" data-on={p.enh.on} onClick={() => setEnhOpen(true)}>Enhancer…</button>
+          </div>
         </div>
       </MacWindow>
 
@@ -164,6 +176,8 @@ export function Player() {
         {...({ webkitdirectory: "" } as Record<string, string>)}
         onChange={(e) => { if (e.target.files) p.addFileList(e.target.files); e.target.value = ""; }} />
 
+      {yt && <YouTubeSearch onClose={() => setYt(false)} onPick={(r, play) => { p.addRemote(r, play); if (play) setYt(false); }} />}
+      {enhOpen && <EnhancerPanel p={p.enh} set={p.setEnh} onClose={() => setEnhOpen(false)} embed={p.engine === "embed"} />}
       {opts && (
         <OptionsDialog
           onClose={() => setOpts(false)}
