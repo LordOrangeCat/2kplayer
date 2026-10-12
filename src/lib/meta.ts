@@ -1,12 +1,12 @@
 // Stub tag reader. The full implementation will replace this file.
 export interface TrackMeta {
   title: string;
-  artist?: string;
-  album?: string;
-  codec?: string;
-  sampleRate?: number;
-  bitDepth?: number;
-  duration?: number;
+  artist?: string | undefined;
+  album?: string | undefined;
+  codec?: string | undefined;
+  sampleRate?: number | undefined;
+  bitDepth?: number | undefined;
+  duration?: number | undefined;
 }
 
 function baseName(name: string) {
