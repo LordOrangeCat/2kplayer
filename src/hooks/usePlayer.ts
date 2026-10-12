@@ -230,18 +230,74 @@ export function usePlayer() {
     const g = ctx.createGain();
     g.gain.value = (volume / 10) ** 2;
     g.connect(ctx.destination);
+    const e = createEnhancer(ctx);
+    e.output.connect(g);
+    e.set(enhParams.current);
     ctxRef.current = ctx;
     gainRef.current = g;
+    enhRef.current = e;
     setOutRate(ctx.sampleRate);
     return ctx;
+  }
+
+  function wire(a: any) {
+    a.ontimeupdate = () => setTime(a.currentTime);
+    a.onloadedmetadata = () => setDuration(a.duration);
+    a.onplay = () => setPlaying(true);
+    a.onpause = () => setPlaying(false);
+    a.onended = () => stateRef.current.onEnded?.();
+  }
+
+  async function playRemote(t: Track) {
+    const r = t.remote!;
+    setCover(r.thumb || null);
+    setEngine("loading");
+    if (t.meta?.duration) setDuration(t.meta.duration);
+    let url: string | null = null;
+    try {
+      url = (await resolveYouTube({ data: { id: r.id } })).url;
+    } catch {
+      url = null;
+    }
+    if (stateRef.current.currentPath !== t.path) return;
+    const embed = () => {
+      if (stateRef.current.currentPath !== t.path) return;
+      const y = new YtAudio(r.id, stateRef.current.volume);
+      audioRef.current = y;
+      wire(y);
+      setEngine("embed");
+      y.play();
+    };
+    if (!url) return embed();
+    const ctx = await ensureCtx();
+    const a = new Audio();
+    a.crossOrigin = "anonymous";
+    a.src = `/api/public/yt-audio?u=${encodeURIComponent(url)}`;
+    audioRef.current = a;
+    ctx.createMediaElementSource(a).connect(enhRef.current!.input);
+    wire(a);
+    let started = false;
+    a.onplaying = () => (started = true);
+    a.onerror = () => {
+      if (!started && audioRef.current === a) {
+        a.pause();
+        embed();
+      }
+    };
+    if (ctx.state === "suspended") await ctx.resume();
+    setEngine("stream");
+    await a.play().catch(() => {});
   }
 
   const playTrack = useCallback(
     async (t: Track) => {
       stop();
       setCurrent(t.path);
+      stateRef.current.currentPath = t.path;
       setTime(0);
       setDuration(0);
+      if (t.remote) return playRemote(t);
+      setEngine("local");
       const file = await getFile(t);
       if (!t.meta) {
         t.meta = await readMeta(file);
@@ -253,17 +309,13 @@ export function usePlayer() {
       const a = new Audio(url);
       audioRef.current = a;
       const src = ctx.createMediaElementSource(a);
-      src.connect(gainRef.current!);
-      a.ontimeupdate = () => setTime(a.currentTime);
-      a.onloadedmetadata = () => setDuration(a.duration);
-      a.onplay = () => setPlaying(true);
-      a.onpause = () => setPlaying(false);
-      a.onended = () => stateRef.current.onEnded?.();
+      src.connect(enhRef.current!.input);
+      wire(a);
       if (ctx.state === "suspended") await ctx.resume();
       await a.play().catch(() => {});
       // cover
       setCover((old) => {
-        if (old) URL.revokeObjectURL(old);
+        if (old?.startsWith("blob:")) URL.revokeObjectURL(old);
         return null;
       });
       const emb = await readPicture(file).catch(() => null);
@@ -272,6 +324,24 @@ export function usePlayer() {
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [matchRate, volume],
+  );
+
+  const addRemote = useCallback(
+    (r: YtResult, play: boolean) => {
+      const path = `yt:${r.id}`;
+      let t = tracks.find((x) => x.path === path);
+      if (!t) {
+        t = {
+          path,
+          name: r.title,
+          remote: { id: r.id, thumb: r.thumb },
+          meta: { title: r.title, artist: r.artist, album: "YouTube", sampleRate: 0, bits: 0, channels: 2, duration: r.duration, codec: "YouTube" },
+        };
+        setTracks((list) => [...list, t!]);
+      }
+      if (play) playTrack(t);
+    },
+    [tracks, playTrack],
   );
 
   const step = useCallback(
