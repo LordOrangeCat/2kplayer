@@ -105,10 +105,8 @@ export function Player() {
           </div>
 
           {/* row 2 */}
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button className="bevel h-11" onClick={() => p.step(-1)} aria-label="Previous"><I.PrevIcon /></button>
-            <button className="bevel h-11" onClick={() => p.seekBy(-10)} aria-label="Back 10 seconds"><I.Back10Icon /></button>
-            <button className="bevel h-11" onClick={() => p.seekBy(10)} aria-label="Forward 10 seconds"><I.Fwd10Icon /></button>
             <button className="bevel h-11" onClick={() => p.step(1)} aria-label="Next"><I.NextIcon /></button>
             <button className="bevel h-11" data-on={isFav} data-heart onClick={p.toggleFav} aria-label="Favorite"><I.HeartIcon /></button>
           </div>
