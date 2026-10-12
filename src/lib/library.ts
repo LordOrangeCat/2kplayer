@@ -12,6 +12,7 @@ export interface Track {
   dir?: any; // FileSystemDirectoryHandle
   siblings?: File[] | undefined; // fallback mode: files in same folder (for covers)
   meta?: TrackMeta | undefined;
+  remote?: { id: string; thumb: string } | undefined; // YouTube track
 }
 
 export type Source = { kind: "dir" | "file"; handle: any };

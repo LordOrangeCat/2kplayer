@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicYtAudioRouteImport } from './routes/api/public/yt-audio'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicYtAudioRoute = ApiPublicYtAudioRouteImport.update({
+  id: '/api/public/yt-audio',
+  path: '/api/public/yt-audio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/public/yt-audio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/public/yt-audio'
+  id: '__root__' | '/' | '/api/public/yt-audio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicYtAudioRoute: typeof ApiPublicYtAudioRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/yt-audio': {
+      id: '/api/public/yt-audio'
+      path: '/api/public/yt-audio'
+      fullPath: '/api/public/yt-audio'
+      preLoaderRoute: typeof ApiPublicYtAudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicYtAudioRoute: ApiPublicYtAudioRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

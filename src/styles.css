@@ -199,3 +199,8 @@ body {
 .options-overlay { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 80px; z-index: 10; }
 .mac-check { appearance: none; width: 16px; height: 16px; border: 2px solid #000; background: #fff; display: grid; place-items: center; }
 .mac-check:checked::after { content: "✕"; font-size: 12px; line-height: 1; }
+
+.retro-input { background: #fff; color: #000; padding: 4px 6px; font-size: 1rem; outline: none; }
+.yt-list { background: #fff; color: #000; max-height: 320px; overflow-y: auto; }
+.yt-row { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-bottom: 1px solid var(--mac-face); }
+.yt-row:hover { background: var(--mac-face); }
