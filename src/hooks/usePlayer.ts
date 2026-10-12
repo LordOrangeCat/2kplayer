@@ -75,7 +75,7 @@ export function usePlayer() {
       try {
         t.meta = await readMeta(await getFile(t));
       } catch {
-        t.meta = { title: t.name.replace(/\.[^.]+$/, "") };
+        t.meta = { title: t.name.replace(/\.[^.]+$/, ""), artist: "", album: "", sampleRate: 0, bits: 0, channels: 0, duration: 0, codec: "" };
       }
       if (++n % 25 === 0) setMetaTick((x) => x + 1);
     }
@@ -216,7 +216,7 @@ export function usePlayer() {
       setDuration(0);
       const file = await getFile(t);
       if (!t.meta) {
-        t.meta = await readMeta(file).catch(() => ({ title: t.name }));
+        t.meta = await readMeta(file);
         setMetaTick((x) => x + 1);
       }
       const ctx = await ensureCtx(t.meta?.sampleRate);
@@ -238,7 +238,8 @@ export function usePlayer() {
         if (old) URL.revokeObjectURL(old);
         return null;
       });
-      const pic = (await readPicture(file).catch(() => null)) ?? (await findFolderCover(t));
+      const emb = await readPicture(file).catch(() => null);
+      const pic = emb?.blob ?? (await findFolderCover(t));
       if (pic && audioRef.current === a) setCover(URL.createObjectURL(pic));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
