@@ -112,8 +112,9 @@ export function usePlayer() {
 
   const setLibrary = useCallback(
     (list: Track[]) => {
-      setTracks(list);
-      loadMeta(list);
+      const local = list.filter((t) => !t.remote);
+      setTracks((prev) => [...local, ...prev.filter((t) => t.remote)]);
+      loadMeta(local);
     },
     [loadMeta],
   );
@@ -366,6 +367,7 @@ export function usePlayer() {
     [queue, current, shuffle, repeat, playTrack],
   );
 
+  stateRef.current.volume = volume;
   stateRef.current.onEnded = () => {
     if (repeat === "one" && audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -403,6 +405,7 @@ export function usePlayer() {
     setVolumeState(n);
     localStorage.setItem("2k.volume", String(n));
     if (gainRef.current) gainRef.current.gain.value = (n / 10) ** 2;
+    audioRef.current?.setVolume?.(n);
   }, []);
 
   const toggleMatch = useCallback((v: boolean) => {
@@ -460,6 +463,7 @@ export function usePlayer() {
     tracks, queue, artists, filter, setFilter, currentTrack, playing, time, duration,
     volume, setVolume, shuffle, setShuffle, repeat, cycleRepeat, favs, toggleFav,
     cover, outRate, matchRate, toggleMatch, needsReconnect, fsa,
+    enh, setEnh, engine, addRemote,
     addSource, addFileList, reconnect, clearLibrary, playTrack, step, togglePlay, seek, seekBy,
   };
 }
