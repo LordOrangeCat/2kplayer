@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { MacWindow } from "./MacWindow";
 import { OptionsDialog } from "./OptionsDialog";
 import { YouTubeSearch } from "./YouTubeSearch";
