@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { readMeta, readPicture } from "@/lib/meta";
+import { createEnhancer, DEFAULT_ENH, type Enhancer, type EnhancerParams } from "@/lib/enhancer";
+import { resolveYouTube, type YtResult } from "@/lib/youtube.functions";
+import { YtAudio } from "@/lib/ytEmbed";
 import {
   findFolderCover,
   getFile,
@@ -37,14 +40,39 @@ export function usePlayer() {
   const [matchRate, setMatchRate] = useState(true);
   const [needsReconnect, setNeedsReconnect] = useState(false);
   const [fsa, setFsa] = useState(true);
+  const [enh, setEnhState] = useState<EnhancerParams>(DEFAULT_ENH);
+  const [engine, setEngine] = useState<"local" | "stream" | "embed" | "loading" | null>(null);
 
   const ctxRef = useRef<AudioContext | null>(null);
   const gainRef = useRef<GainNode | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const enhRef = useRef<Enhancer | null>(null);
+  const enhParams = useRef<EnhancerParams>(DEFAULT_ENH);
+  const audioRef = useRef<any>(null); // HTMLAudioElement | YtAudio
   const urlRef = useRef<string | null>(null);
   const sourcesRef = useRef<Source[]>([]);
   const metaJob = useRef(0);
   const stateRef = useRef<any>({});
+
+  useEffect(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem("2k.enh") ?? "null");
+      if (s) {
+        const p = { ...DEFAULT_ENH, ...s };
+        enhParams.current = p;
+        setEnhState(p);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setEnh = useCallback((patch: Partial<EnhancerParams>) => {
+    const p = { ...enhParams.current, ...patch };
+    enhParams.current = p;
+    setEnhState(p);
+    localStorage.setItem("2k.enh", JSON.stringify(p));
+    enhRef.current?.set(p);
+  }, []);
 
   // ---------- init ----------
   useEffect(() => {
