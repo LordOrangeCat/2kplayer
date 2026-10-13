@@ -8,5 +8,5 @@
 # v0.1.1 preview
 
 - [x] Add the uploaded version as an isolated preview without installation or offline caching.
-- [ ] Verify local import, playback, equalizer and external YouTube search.
-- [ ] Share the new preview link.
+- [x] Verify local import, playback, equalizer and external YouTube search.
+- [x] Share the new preview link.
