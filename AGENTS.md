@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Uploaded standalone player reviews are isolated inside a TanStack preview route with static browser source, so their styles and local library do not replace the existing player.
+- Uploaded review previews must omit app-shell service-worker registration and installation metadata, so inspecting an archive cannot cache or take over the Lovable preview.
