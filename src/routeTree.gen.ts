@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UploadPreviewRouteImport } from './routes/upload-preview'
+import { Route as UploadPreviewV011RouteImport } from './routes/upload-preview-v011'
 import { Route as ApiPublicYtAudioRouteImport } from './routes/api/public/yt-audio'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const UploadPreviewRoute = UploadPreviewRouteImport.update({
   path: '/upload-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UploadPreviewV011Route = UploadPreviewV011RouteImport.update({
+  id: '/upload-preview-v011',
+  path: '/upload-preview-v011',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicYtAudioRoute = ApiPublicYtAudioRouteImport.update({
   id: '/api/public/yt-audio',
   path: '/api/public/yt-audio',
@@ -32,30 +38,40 @@ const ApiPublicYtAudioRoute = ApiPublicYtAudioRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upload-preview': typeof UploadPreviewRoute
+  '/upload-preview-v011': typeof UploadPreviewV011Route
   '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upload-preview': typeof UploadPreviewRoute
+  '/upload-preview-v011': typeof UploadPreviewV011Route
   '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/upload-preview': typeof UploadPreviewRoute
+  '/upload-preview-v011': typeof UploadPreviewV011Route
   '/api/public/yt-audio': typeof ApiPublicYtAudioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upload-preview' | '/api/public/yt-audio'
+  fullPaths:
+    '/' | '/upload-preview' | '/upload-preview-v011' | '/api/public/yt-audio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upload-preview' | '/api/public/yt-audio'
-  id: '__root__' | '/' | '/upload-preview' | '/api/public/yt-audio'
+  to: '/' | '/upload-preview' | '/upload-preview-v011' | '/api/public/yt-audio'
+  id:
+    | '__root__'
+    | '/'
+    | '/upload-preview'
+    | '/upload-preview-v011'
+    | '/api/public/yt-audio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UploadPreviewRoute: typeof UploadPreviewRoute
+  UploadPreviewV011Route: typeof UploadPreviewV011Route
   ApiPublicYtAudioRoute: typeof ApiPublicYtAudioRoute
 }
 
@@ -75,6 +91,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UploadPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/upload-preview-v011': {
+      id: '/upload-preview-v011'
+      path: '/upload-preview-v011'
+      fullPath: '/upload-preview-v011'
+      preLoaderRoute: typeof UploadPreviewV011RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/yt-audio': {
       id: '/api/public/yt-audio'
       path: '/api/public/yt-audio'
@@ -88,6 +111,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UploadPreviewRoute: UploadPreviewRoute,
+  UploadPreviewV011Route: UploadPreviewV011Route,
   ApiPublicYtAudioRoute: ApiPublicYtAudioRoute,
 }
 export const routeTree = rootRouteImport
