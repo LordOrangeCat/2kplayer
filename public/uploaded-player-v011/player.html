@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090a0b">
+  <meta name="description" content="2kPlayer — a compact, offline-first music player.">
+  <link rel="stylesheet" href="./styles.css">
+  <title>2kPlayer</title>
+</head>
+<body>
+  <div id="appShell" class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./player.html" aria-label="2kPlayer home">
+        <span class="brand-mark">2K<span>▶</span></span>
+        <span class="brand-name">2k<span>Player</span><small>LOCAL AUDIO SYSTEM</small></span>
+      </a>
+      <div class="topbar-status"><span class="status-light"></span><span id="connectionLabel">LOCAL MODE</span><span class="status-divider">/</span><span id="libraryStatus">LIBRARY READY</span></div>
+      <div class="topbar-actions">
+        <button class="button button-quiet" id="openPlaylistWindow" title="Open a separate playlist window">↗ <span>Playlist window</span></button>
+        <button class="button button-quiet" id="openEq">≋ <span>Equalizer</span></button>
+        <button class="button button-quiet" id="openThemes">◈ <span>Skin</span></button>
+        <button class="button button-accent" id="importFiles">＋ Import audio</button>
+        <input id="filePicker" class="visually-hidden" type="file" accept="audio/flac,audio/wav,audio/mpeg,audio/mp4,audio/aac,.flac,.wav,.mp3,.m4a,.aac" multiple>
+        <input id="folderPicker" class="visually-hidden" type="file" accept="audio/*,.flac,.wav,.mp3,.m4a,.aac" webkitdirectory directory multiple>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Library navigation">
+        <div class="sidebar-label">YOUR COLLECTION</div>
+        <button class="nav-item active" data-view="all"><span class="nav-glyph">▤</span><span>All tracks</span><span id="allCount" class="nav-count">0</span></button>
+        <button class="nav-item" data-view="favorites"><span class="nav-glyph">♡</span><span>Favorites</span><span id="favoriteCount" class="nav-count">0</span></button>
+        <button class="nav-item" data-view="queue"><span class="nav-glyph">≡</span><span>Play queue</span><span id="queueCount" class="nav-count">0</span></button>
+        <div class="sidebar-label sidebar-label-spaced">PLAYLISTS <button id="createPlaylist" class="tiny-plus" title="Create playlist" aria-label="Create playlist">＋</button></div>
+        <div id="playlistNav" class="playlist-nav"><p class="empty-nav">No playlists yet.</p></div>
+        <div class="sidebar-bottom">
+          <div class="storage-card">
+            <div class="storage-heading"><span>LOCAL STORAGE</span><span id="storagePercent">—</span></div>
+            <div class="storage-track"><span id="storageBar"></span></div>
+            <p id="storageText">Your library stays on this device.</p>
+            <button id="protectStorage" class="text-button">Check storage protection ↗</button>
+          </div>
+          <div class="sidebar-footer">VIBECODED BY LAMES FT. AI</div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="welcome-strip">
+          <div class="welcome-copy"><span class="eyebrow">PERSONAL AUDIO / 001</span><h1>Stay in your <em>frequency.</em></h1><p>Your files. Your queue. Your sound — stored locally.</p></div>
+          <div class="welcome-art" aria-hidden="true"><div class="disc"><div class="disc-hole"></div></div><div class="art-tag">SIDE A<br><b>2K / LP</b></div></div>
+        </section>
+
+        <section class="library-section">
+          <div class="section-toolbar">
+            <div><div class="eyebrow" id="viewEyebrow">YOUR LIBRARY</div><h2 id="viewTitle">All tracks <span class="title-count" id="titleCount">0</span></h2></div>
+            <div class="toolbar-right">
+              <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search your library…" autocomplete="off"><kbd>Ctrl K</kbd></label>
+              <button class="button button-outline youtube-search-button" id="searchYouTube" title="Search YouTube online in a new tab">YouTube ↗</button><button class="button button-outline" id="scanFolder">▧ Scan folder</button>
+            </div>
+          </div>
+          <div id="playlistDetailBar" class="playlist-detail-bar hidden"></div>
+          <div class="track-header"><span class="track-index">#</span><span class="track-main-label">TITLE / ARTIST</span><span class="track-album-label">ALBUM</span><span class="track-format-label">FORMAT</span><span class="track-duration-label">TIME</span><span class="track-actions-label"> </span></div>
+          <div id="trackRows" class="track-rows" role="list" aria-label="Music library">
+            <div class="empty-state"><div class="empty-record">♫</div><h3>Your speakers are waiting.</h3><p>Your library starts empty. Import audio for local playback, or search YouTube online using the search bar above.</p><div class="empty-actions"><button class="button button-accent" id="emptyImport">＋ Import audio</button><button class="button button-outline" id="emptySearchYouTube">Search YouTube ↗</button></div><span class="format-hint">FLAC · WAV · MP3 · AAC / M4A</span></div>
+          </div>
+          <div class="library-footnote"><span id="librarySummary">0 tracks indexed</span><span><i class="mini-dot"></i> Offline-first library</span></div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <section class="rail-card now-playing-card">
+          <div class="rail-heading"><span>NOW PLAYING</span><span class="tiny-live"><i></i> LOCAL</span></div>
+          <div class="album-art" id="albumArt"><div class="art-grid"></div><div class="art-center">2K<span>♫</span></div><div class="art-caption">VIBECODED / VOL. 01</div></div>
+          <div class="now-track"><h3 id="nowTitle">Nothing playing</h3><p id="nowArtist">Import audio to begin</p></div>
+          <div class="now-meta"><span id="nowFormat">NO SOURCE</span><span id="nowRate">—</span></div>
+          <div class="rail-divider"></div>
+          <div class="rail-heading"><span>OUTPUT PATH</span><span class="pill-status" id="outputMode">BROWSER</span></div>
+          <div class="output-row"><span class="output-icon">◉</span><div><b>System audio</b><small id="outputHint">Using the browser's available output path</small></div></div>
+          <p class="honesty-note">Bit-perfect output is not assumed. The full output path cannot currently be verified by this PWA.</p>
+        </section>
+        <section class="rail-card queue-card">
+          <div class="rail-heading"><span>UP NEXT</span><button class="text-button" id="clearQueue">CLEAR</button></div>
+          <div id="queuePreview" class="queue-preview"><p class="queue-empty">Your queue is taking a breather.</p></div>
+          <button class="button button-outline button-full" id="openQueue">Open queue <span>→</span></button>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="player-dock" aria-label="Playback controls">
+      <div class="dock-track"><div class="dock-thumb" id="dockThumb">♫</div><div class="dock-track-copy"><b id="dockTitle">No track selected</b><small id="dockArtist">Add local audio to your library</small></div><button id="dockFavorite" class="icon-button favorite-button" title="Toggle favorite" aria-label="Toggle favorite">♡</button></div>
+      <div class="dock-center">
+        <div class="transport-row">
+          <button id="shuffleButton" class="icon-button state-button" title="Shuffle" aria-label="Shuffle">⤨</button>
+          <button id="previousButton" class="icon-button" title="Previous track" aria-label="Previous track">|‹</button>
+          <button id="playButton" class="play-button" title="Play" aria-label="Play">▶</button>
+          <button id="nextButton" class="icon-button" title="Next track" aria-label="Next track">›|</button>
+          <button id="repeatButton" class="icon-button state-button" title="Repeat queue" aria-label="Repeat queue">↻</button>
+        </div>
+        <div class="timeline-row"><span id="elapsedTime">0:00</span><input id="seekBar" type="range" min="0" max="1000" value="0" aria-label="Seek through track"><span id="totalTime">0:00</span></div>
+      </div>
+      <div class="dock-tools"><button id="visualizerToggle" class="icon-button state-button active" title="Toggle visualizer" aria-label="Toggle visualizer">▥</button><canvas id="visualizer" height="62" aria-label="Audio visualizer"></canvas><div class="volume-control"><span>◖</span><input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume"></div><button id="backupButton" class="icon-button" title="Export or restore library backup" aria-label="Library backup">⇅</button></div>
+      <audio id="audio" preload="metadata" aria-hidden="true"></audio>
+      <audio id="dspAudio" preload="metadata" aria-hidden="true"></audio>
+    </footer>
+
+    <div id="updateNotice" class="update-notice hidden" role="status" aria-live="polite"><div><b>2kPlayer update ready</b><small>A newer app shell is available. Install it when you are ready.</small></div><div class="update-actions"><button id="dismissUpdate" class="button button-quiet">Later</button><button id="installUpdate" class="button button-accent">Install update</button></div></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <section id="playlistWindow" class="playlist-window hidden">
+    <header class="popout-header"><div class="brand"><span class="brand-mark">2K<span>▶</span></span><span class="brand-name">2k<span>Player</span><small>PLAYLIST WINDOW</small></span></div><div class="popout-actions"><button id="playlistRefresh" class="button button-quiet">↻ Refresh</button><button id="playlistClose" class="button button-outline">Close window</button></div></header>
+    <div class="popout-body"><div class="popout-title-row"><div><div class="eyebrow">INDEPENDENT PLAYLIST VIEW</div><h1>Track <em>manifest.</em></h1></div><div class="segmented"><button class="active" data-popview="queue">Queue</button><button data-popview="all">Library</button></div></div><div class="popout-notice" id="popoutNotice">Select a track to send playback commands to the main player window.</div><div class="track-header"><span class="track-index">#</span><span class="track-main-label">TITLE / ARTIST</span><span class="track-album-label">ALBUM</span><span class="track-format-label">FORMAT</span><span class="track-duration-label">TIME</span><span class="track-actions-label"> </span></div><div id="popoutRows" class="track-rows"></div></div>
+  </section>
+
+  <dialog id="eqDialog" class="modal">
+    <form method="dialog" class="modal-head"><div><div class="eyebrow">SIGNAL PROCESSING</div><h2>Equalizer <em>deck.</em></h2></div><button class="icon-button close-modal" aria-label="Close equalizer">×</button></form>
+    <div class="modal-body"><div class="eq-topline"><span class="pill-status" id="eqEngineStatus">NATIVE / DSP OFF</span><div class="eq-topline-actions"><button id="toggleDSP" class="button button-accent">Enable DSP</button><button id="eqReset" class="text-button">RESET FLAT</button></div></div><div id="eqBands" class="eq-bands"></div><div class="eq-shelves"><label>BASS <input id="bassGain" type="range" min="-12" max="12" step="0.5" value="0"><output id="bassValue">0 dB</output></label><label>TREBLE <input id="trebleGain" type="range" min="-12" max="12" step="0.5" value="0"><output id="trebleValue">0 dB</output></label></div><div class="eq-shelves eq-advanced"><label>WARMTH <input id="warmthGain" type="range" min="0" max="0.8" step="0.05" value="0"><output id="warmthValue">Off</output></label><label>STEREO WIDTH <input id="stereoWidth" type="range" min="0.5" max="1.5" step="0.05" value="1"><output id="widthValue">100%</output></label></div><p class="modal-note">DSP changes the audio signal; it is not bit-perfect. Live spectrum analysis uses the Web Audio path, so keep DSP disabled for the browser-native path. Device-specific profiles and device selection are not available in this browser-only build.</p></div>
+  </dialog>
+
+  <dialog id="themeDialog" class="modal modal-narrow">
+    <form method="dialog" class="modal-head"><div><div class="eyebrow">APPEARANCE / CUSTOM THEMES</div><h2>Skin <em>system.</em></h2></div><button class="icon-button close-modal" aria-label="Close skins">×</button></form>
+    <div class="modal-body"><div class="theme-preview"><span class="theme-swatch"></span><div><b>Saffron CRT</b><small>Signature black · charcoal · saffron</small></div><span class="pill-status">ACTIVE</span></div><p class="modal-note">Import a JSON theme to customize colors, fonts, corner radius, compactness, and visualizer height. Themes are validated configuration only; executable code is never accepted.</p><div class="modal-actions"><button class="button button-outline" id="exportTheme">Export current theme</button><button class="button button-accent" id="importTheme">Import theme JSON</button><input type="file" id="themePicker" class="visually-hidden" accept="application/json,.json"></div><button id="resetTheme" class="text-button">Restore signature theme</button></div>
+  </dialog>
+
+  <dialog id="backupDialog" class="modal modal-narrow">
+    <form method="dialog" class="modal-head"><div><div class="eyebrow">LOCAL DATA / RECOVERY</div><h2>Library <em>backup.</em></h2></div><button class="icon-button close-modal" aria-label="Close backup dialog">×</button></form>
+    <div class="modal-body"><div class="backup-warning"><b>Metadata backup, not an audio archive.</b><p>Backups include your track index, favorites, playlists, queue, and selected settings. Music bytes are not included. Keep your original audio files separately.</p></div><div class="modal-actions stacked"><button class="button button-accent" id="exportBackup">⇩ Export library backup</button><button class="button button-outline" id="importBackup">⇧ Restore / merge backup</button><input id="backupPicker" type="file" accept="application/json,.json" class="visually-hidden"></div><p class="modal-note">Import validates the file and merges records. Tracks whose audio bytes are not present on this device may need to be imported again from their source files.</p></div>
+  </dialog>
+
+  <dialog id="createPlaylistDialog" class="modal modal-narrow">
+    <form id="createPlaylistForm" class="modal-form"><div class="modal-head"><div><div class="eyebrow">NEW COLLECTION</div><h2>Create <em>playlist.</em></h2></div><button type="button" class="icon-button close-modal" data-close="createPlaylistDialog" aria-label="Close dialog">×</button></div><div class="modal-body"><label class="field-label" for="newPlaylistName">PLAYLIST NAME</label><input id="newPlaylistName" class="text-input" maxlength="64" required placeholder="Late night rotation"><div class="modal-actions"><button type="button" class="button button-outline" data-close="createPlaylistDialog">Cancel</button><button class="button button-accent" type="submit">Create playlist</button></div></div></form>
+  </dialog>
+
+  <dialog id="addTracksDialog" class="modal modal-narrow">
+    <form method="dialog" class="modal-head"><div><div class="eyebrow">PLAYLIST MANAGEMENT</div><h2>Add to <em>playlist.</em></h2></div><button class="icon-button close-modal" aria-label="Close playlist picker">×</button></form>
+    <div class="modal-body"><p id="addTracksHelp" class="modal-note">Choose a playlist for the current track.</p><div id="playlistChoices" class="playlist-choices"></div></div>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+  <div id="bootError" class="boot-error" role="alert" hidden>
+    <b>2kPlayer did not finish loading.</b>
+    <span>Don't open index.html directly from a ZIP. Extract the project and run <code>npm run dev</code>, then open <code>http://127.0.0.1:4173</code>.</span>
+  </div>
+  <script>
+    window.__2kPlayerBootComplete = false;
+    window.addEventListener('2kplayer:ready', () => { window.__2kPlayerBootComplete = true; });
+    window.setTimeout(() => {
+      if (!window.__2kPlayerBootComplete) document.getElementById('bootError')?.removeAttribute('hidden');
+    }, 8000);
+  </script>
+</body>
+</html>
